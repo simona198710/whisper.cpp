@@ -30,9 +30,15 @@ endif
 # Compile flags
 #
 
-CFLAGS   = -I.              -O3 -std=c11   -fPIC
-CXXFLAGS = -I. -I./examples -O3 -std=c++11 -fPIC
+CFLAGS   = -I.              -O3 -DNDEBUG -std=c11   -fPIC
+CXXFLAGS = -I. -I./examples -O3 -DNDEBUG -std=c++11 -fPIC
 LDFLAGS  =
+
+# ref: https://github.com/ggerganov/whisper.cpp/issues/37
+ifneq ($(wildcard /usr/include/musl/*),)
+	CFLAGS   += -D_POSIX_SOURCE -D_GNU_SOURCE
+	CXXFLAGS += -D_POSIX_SOURCE -D_GNU_SOURCE
+endif
 
 # OS specific
 # TODO: support Windows
@@ -141,6 +147,8 @@ ifdef WHISPER_GPROF
 	CXXFLAGS += -pg
 endif
 ifneq ($(filter aarch64%,$(UNAME_M)),)
+	CFLAGS += -mcpu=native
+	CXXFLAGS += -mcpu=native
 endif
 ifneq ($(filter armv6%,$(UNAME_M)),)
 	# Raspberry Pi 1, 2, 3
